@@ -117,5 +117,4 @@
 
 * **Diagraming**：[diagrams.net (Draw.io)](https://app.diagrams.net/)
 
-* **RTL Language**：Verilog / SystemVerilog
-* **Simulation**：Icarus Verilog + GTKWave / Vivado XSIM
+
