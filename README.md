@@ -1,9 +1,4 @@
 # AXI_AHB_Bridge_Homework
-這是一份非常適合直接放在 **GitHub README.md** 的專案架構與狀態機說明模板。
-
-你可以直接複製下方 Markdown 內容貼到你的 GitHub README 中，它包含了**專案簡介**、**核心模組架構**與**狀態機 (FSM) 運行邏輯**：
-
----
 
 # SoC Bus Interconnect Wrapper & FSM Design (AHB & AXI4)
 
@@ -108,6 +103,116 @@
 
 
 
+
+# Message Sequence Chart (MSC): AHB vs. AXI DMA Transfer Flow
+
+
+
+在系統（SoC）中，**CPU 設定 SIP DMA 控制暫存器**，並由 **DMA 自動將資料搬移至 Memory** 的完整訊息時序圖（Message Sequence Chart）。圖中詳細對比了 AMBA AHB 與 AMBA AXI4 兩種協定在傳輸機制上的核心差異。
+
+---
+
+## 👥 系統角色定義 (Lifelines)
+
+* **`CPU (Master)`**：發起配置指令的主控端。
+
+
+* **`SIP DMA (Slave 端：暫存器)`**：被控端，接收 CPU 寫入的配置參數（如 Pkt 起始/終點位址與長度）。
+
+
+* **`SIP DMA (Master 端：搬移)`**：主控端，收到內部啟動訊號後，主動發起對 Memory 的資料搬移。
+
+
+* **`Memory Ctrl (Slave)`**：被控端，接收 DMA 寫入的位址與資料。
+
+
+
+---
+
+## 🔄 四大階段傳輸流程拆解
+
+### ❶ CPU 配置 SIP 暫存器 (CPU Configures SIP Registers)
+
+
+
+* **AHB 協定**：
+* **Phase 1 (位址階段)**：CPU 送出 `HTRANS = NONSEQ`, `HWRITE = 1` 與位址 `HADDR`。
+
+
+* **Phase 2 (資料階段)**：隔一拍（Pipeline 重疊）送出寫入數據 `HWDATA`。
+
+
+* **Ack**：SIP DMA 返回 `HREADY = 1, HRESP = OKAY` 完成寫入。
+
+
+
+
+* **AXI 協定**：
+* **AW 通道**：`AWADDR, AWVALID` 與 `AWREADY` 完成寫入位址握手。
+
+
+* **W 通道**：`WDATA, WVALID, WLAST` 與 `WREADY` 完成寫入數據握手。
+
+
+* **B 通道**：`BVALID, BRESP = OKAY` 與 `BREADY` 完成寫入回應握手。
+
+
+
+
+
+---
+
+### ❷ SIP DMA 內部啟動 (DMA Internal Trigger)
+
+
+
+* **AHB (Step 4) / AXI (Step 7)**：SIP DMA 內部的邏輯電路解碼完成後，發送內部觸發訊號（`Start, Length`），啟動 DMA Master 模組進行自動搬移。
+
+
+
+---
+
+### ❸ DMA 搬移資料至 Memory (DMA Memory Transfer Phase)
+
+
+
+* **AHB 協定**：
+* DMA 發起 `HTRANS = NONSEQ` 位址階段與 `HWDATA` 資料階段。
+
+
+* 若 Memory 忙碌，可拉低 `HREADY = 0` 插入 Wait State。
+
+
+* 當 `HREADY = 1` 時完成該拍傳輸；後續突發傳輸（Burst）改用 `HTRANS = SEQ` 與 `HADDR` 自動遞增。
+
+
+
+
+* **AXI 協定**：
+* **AW 通道**：傳送位址與突發設定（`AWADDR, AWLEN, AWSIZE, AWBURST`）並進行握手。
+
+
+* **W 通道**：連續傳送突發資料（`WDATA`），最後一筆加上 `WLAST = 1` 標記。
+
+
+* **B 通道**：整組 Burst 傳輸完全結束後，由 Memory 返回一次性寫入回應（`BVALID, BRESP`）。
+
+
+
+
+
+---
+
+### ❹ 中斷通報 (Interrupt Notification)
+
+
+
+* **AHB (Step 9) / AXI (Step 14)**：整組 Packet 搬移完成後，SIP DMA 透過 Dedicated Sideband 訊號發送中斷請求（`IRQ`）通知 CPU。
+
+
+
+---
+<img width="2062" height="1567" alt="ahbaxi_Message Sequence Chart" src="https://github.com/user-attachments/assets/2b153b52-e761-43dc-8427-a79ac08612f2" />
 
 
 
