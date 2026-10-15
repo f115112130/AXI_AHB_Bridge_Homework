@@ -101,6 +101,11 @@
 * **Slave Write FSM**：`W_IDLE` ➔ `W_DATA` ➔ `W_ACCESS` ➔ `W_RESP` (返回 `BRESP` 寫入完成回應)。
 <img width="4258" height="2402" alt="AXI_AHB_MASTER_SLAVE" src="https://github.com/user-attachments/assets/cc2f4e42-21b5-4ebb-8890-27783f2ef992" />
 
+<img width="1353" height="976" alt="ahb_read_wave" src="https://github.com/user-attachments/assets/2eb14bc5-a270-4921-a045-25d41138f5f5" />
+<img width="1171" height="976" alt="ahb_write_wave" src="https://github.com/user-attachments/assets/03ea399c-2ca4-4044-852a-decad7cebc2d" />
+<img width="1837" height="838" alt="axi_read_wave" src="https://github.com/user-attachments/assets/355f69df-a9c5-4ba0-85c9-2f363db2ed7a" />
+<img width="1897" height="976" alt="axi_write_wave" src="https://github.com/user-attachments/assets/d9275bb8-8a17-474f-9319-8462bafc1ba2" />
+
 
 
 
